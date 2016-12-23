@@ -9,6 +9,7 @@
 - [#7553](https://github.com/influxdata/influxdb/issues/7553): Add modulo operator to the query language.
 - [#7856](https://github.com/influxdata/influxdb/issues/7856): Failed points during an import now result in a non-zero exit code.
 - [#7821](https://github.com/influxdata/influxdb/issues/7821): Expose some configuration settings via SHOW DIAGNOSTICS
+- [#6541](https://github.com/influxdata/influxdb/issues/6541): Support timezone offsets for queries.
 
 ## v1.2.2 [2017-03-14]
 
