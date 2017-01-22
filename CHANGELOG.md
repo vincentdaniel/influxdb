@@ -1,3 +1,11 @@
+## v1.3.0 [unreleased]
+
+### Release Notes
+
+### Bugfixes
+
+- [#7862](https://github.com/influxdata/influxdb/pull/7861): Add new profile endpoint for gathering all profiles in archive.
+
 ## v1.2.0 [unreleased]
 
 ### Release Notes
