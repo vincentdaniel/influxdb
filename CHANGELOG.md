@@ -4,6 +4,10 @@
 
 - [#7776](https://github.com/influxdata/influxdb/issues/7776): Add system information to /debug/vars.
 
+### Bugfixes
+
+- [#7957](https://github.com/influxdata/influxdb/issues/7957): URL query parameter credentials take priority over Authentication header.
+
 ## v1.2.1 [unreleased]
 
 ### Bugfixes
