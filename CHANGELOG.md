@@ -8,6 +8,10 @@
 - [#7776](https://github.com/influxdata/influxdb/issues/7776): Add system information to /debug/vars.
 - [#7553](https://github.com/influxdata/influxdb/issues/7553): Add modulo operator to the query language.
 
+### Bugfixes
+
+- [#8093](https://github.com/influxdata/influxdb/issues/8093): Fix the time range when an exact timestamp is selected.
+
 ## v1.2.1 [unreleased]
 
 ### Bugfixes
