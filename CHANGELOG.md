@@ -8,6 +8,10 @@
 - [#7776](https://github.com/influxdata/influxdb/issues/7776): Add system information to /debug/vars.
 - [#7553](https://github.com/influxdata/influxdb/issues/7553): Add modulo operator to the query language.
 
+### Bugfixes
+
+- [#8091](https://github.com/influxdata/influxdb/issues/8091): Do not increment the continuous query statistic if no query is run.
+
 ## v1.2.1 [unreleased]
 
 ### Bugfixes
