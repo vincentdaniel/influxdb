@@ -11,6 +11,10 @@
 - [#7821](https://github.com/influxdata/influxdb/issues/7821): Expose some configuration settings via SHOW DIAGNOSTICS
 - [#8025](https://github.com/influxdata/influxdb/issues/8025): Support single and multiline comments in InfluxQL.
 
+### Bugfixes
+
+- [#8064](https://github.com/influxdata/influxdb/issues/8064): Forbid wildcards in binary expressions.
+
 ## v1.2.2 [2017-03-14]
 
 ### Release Notes
