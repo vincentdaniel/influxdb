@@ -31,6 +31,10 @@ import (
 // ErrBlankCommand is returned when a parsed command is empty.
 var ErrBlankCommand = errors.New("empty input")
 
+// DefaultChunkSize is the default number of results to return
+// per response if chunked responses are turned on
+const DefaultChunkSize = 10000
+
 // CommandLine holds CLI configuration and state.
 type CommandLine struct {
 	Line            *liner.State
@@ -47,6 +51,7 @@ type CommandLine struct {
 	ShowVersion     bool
 	Import          bool
 	Chunked         bool
+	ChunkSize       int
 	Quit            chan struct{}
 	IgnoreSignals   bool // Ignore signals normally caught by this process (used primarily for testing)
 	ForceTTY        bool // Force the CLI to act as if it were connected to a TTY
@@ -64,6 +69,8 @@ func New(version string) *CommandLine {
 		ClientVersion: version,
 		Quit:          make(chan struct{}, 1),
 		osSignals:     make(chan os.Signal, 1),
+		Chunked:       true,
+		ChunkSize:     DefaultChunkSize,
 	}
 }
 
@@ -256,6 +263,15 @@ func (c *CommandLine) ParseCommand(cmd string) error {
 			c.SetWriteConsistency(cmd)
 		case "settings":
 			c.Settings()
+		case "chunked":
+			c.Chunked = !c.Chunked
+			if c.Chunked {
+				fmt.Println("chunked responses enabled")
+			} else {
+				fmt.Println("chunked reponses disabled")
+			}
+		case "chunk":
+			c.SetChunkSize(cmd)
 		case "pretty":
 			c.Pretty = !c.Pretty
 			if c.Pretty {
@@ -490,6 +506,30 @@ func (c *CommandLine) retentionPolicyExists(db, rp string) bool {
 	return true
 }
 
+// SetChunkSize sets the chunk size
+// 0 sets it back to the default
+func (c *CommandLine) SetChunkSize(cmd string) {
+	// normalize cmd
+	cmd = strings.ToLower(cmd)
+
+	// Remove the "chunk size" keyword if it exists
+	cmd = strings.TrimSpace(strings.Replace(cmd, "chunk size", "", -1))
+
+	// Remove the "chunk" keyword if it exists
+	// allows them to use `chunk 50` as a shortcut
+	cmd = strings.TrimSpace(strings.Replace(cmd, "chunk", "", -1))
+
+	if n, err := strconv.ParseInt(cmd, 10, 64); err == nil {
+		c.ChunkSize = int(n)
+		if c.ChunkSize <= 0 {
+			c.ChunkSize = DefaultChunkSize
+		}
+		fmt.Printf("chunk size set to %d\n", c.ChunkSize)
+	} else {
+		fmt.Printf("unable to parse chunk size from %q\n", cmd)
+	}
+}
+
 // SetPrecision sets client precision.
 func (c *CommandLine) SetPrecision(cmd string) {
 	// normalize cmd
@@ -659,9 +699,10 @@ func (c *CommandLine) Insert(stmt string) error {
 // query creates a query struct to be used with the client.
 func (c *CommandLine) query(query string) client.Query {
 	return client.Query{
-		Command:  query,
-		Database: c.Database,
-		Chunked:  true,
+		Command:   query,
+		Database:  c.Database,
+		Chunked:   c.Chunked,
+		ChunkSize: c.ChunkSize,
 	}
 }
 
@@ -877,6 +918,8 @@ func (c *CommandLine) Settings() {
 	fmt.Fprintf(w, "Pretty\t%v\n", c.Pretty)
 	fmt.Fprintf(w, "Format\t%s\n", c.Format)
 	fmt.Fprintf(w, "Write Consistency\t%s\n", c.ClientConfig.WriteConsistency)
+	fmt.Fprintf(w, "Chunked\t%v\n", c.Chunked)
+	fmt.Fprintf(w, "Chunk Size\t%d\n", c.ChunkSize)
 	fmt.Fprintln(w)
 	w.Flush()
 }
@@ -886,6 +929,8 @@ func (c *CommandLine) help() {
         connect <host:port>   connects to another node specified by host:port
         auth                  prompts for username and password
         pretty                toggles pretty print for the json format
+        chunked               turns on chunked responses from server
+        chunk size <size>     sets the size of the chunked responses.  Set to 0 to reset to the default chunked size
         use <db_name>         sets current database
         format <format>       specifies the format of the server responses: json, csv, or column
         precision <format>    specifies the format of the timestamp: rfc3339, h, m, s, ms, u or ns
